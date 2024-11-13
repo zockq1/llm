@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Virtuoso } from "react-virtuoso"; // Virtuoso 컴포넌트 임포트
+import { Virtuoso } from "react-virtuoso";
 
 interface Message {
   id: number;
@@ -10,7 +10,7 @@ interface Message {
 const ChatWindowing: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>("");
-  const [currentResponse, setCurrentResponse] = useState<string[]>([]); // 실시간 응답을 배열로 저장
+  const [currentResponse, setCurrentResponse] = useState<string[]>([]);
 
   const sendMessage = async () => {
     setCurrentResponse([]);
@@ -47,10 +47,10 @@ const ChatWindowing: React.FC = () => {
           const assistantMessage = parsedMessage.choices[0].message.content;
           const finishReason = parsedMessage.choices[0].finish_reason;
 
-          tempResponse += assistantMessage; // 데이터 누적
+          tempResponse += assistantMessage;
 
           if (finishReason === "stop") {
-            const paragraphs = tempResponse.split("\\n\\n"); // 배열로 분리하여 저장
+            const paragraphs = tempResponse.split("\\n\\n");
             setMessages((prevMessages) => [
               ...prevMessages,
               {
@@ -59,7 +59,7 @@ const ChatWindowing: React.FC = () => {
                 role: "assistant",
               },
             ]);
-            setCurrentResponse([]); // 실시간 응답 초기화
+            setCurrentResponse([]);
             isConnected = false;
           } else {
             setCurrentResponse(tempResponse.split("\\n\\n")); // 실시간 응답 배열로 저장
@@ -94,6 +94,7 @@ const ChatWindowing: React.FC = () => {
       <h2 style={{ textAlign: "center", marginBottom: "20px", color: "#333" }}>
         ChatBot
       </h2>
+      {/* 윈도우잉 적용 */}
       <Virtuoso
         style={{
           height: "400px",
@@ -101,6 +102,7 @@ const ChatWindowing: React.FC = () => {
           borderRadius: "8px",
         }}
         totalCount={messages.length + (currentResponse.length > 0 ? 1 : 0)}
+        followOutput={"auto"}
         itemContent={(index) => {
           const msg =
             index < messages.length

@@ -8,12 +8,12 @@ interface Message {
 }
 
 const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]); // 전체 메시지 저장
-  const [input, setInput] = useState<string>(""); // 사용자 입력 메시지 상태
-  const [isAutoScroll, setIsAutoScroll] = useState(true); // 자동 스크롤 활성화 여부
-  const [currentResponse, setCurrentResponse] = useState<string[]>([]); // 실시간 응답 배열
-  const messagesEndRef = useRef<HTMLDivElement | null>(null); // 스크롤 최하단 참조
-  const chatContainerRef = useRef<HTMLDivElement | null>(null); // 채팅 컨테이너 참조
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState<string>("");
+  const [isAutoScroll, setIsAutoScroll] = useState(true);
+  const [currentResponse, setCurrentResponse] = useState<string[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const chatContainerRef = useRef<HTMLDivElement | null>(null);
 
   // messages나 currentResponse가 변경될 때 자동으로 맨 아래로 스크롤
   useEffect(() => {
@@ -22,10 +22,12 @@ const Chat: React.FC = () => {
     }
   }, [messages, currentResponse, isAutoScroll]);
 
-  // 마우스 휠 이벤트로 스크롤 위치를 감지하여 자동 스크롤 설정
   const handleWheel = () => {
-    setIsAutoScroll(false); // 마우스 휠을 조작했을 때 자동 스크롤 비활성화
+    // 마우스 휠을 조작했을 때 자동 스크롤 비활성화
+    setIsAutoScroll(false);
+
     if (chatContainerRef.current) {
+      // 스크롤 위치 계산
       const { scrollTop, scrollHeight, clientHeight } =
         chatContainerRef.current;
       const isNearBottom = scrollHeight - scrollTop - clientHeight <= 50;
@@ -74,10 +76,10 @@ const Chat: React.FC = () => {
           const assistantMessage = parsedMessage.choices[0].message.content;
           const finishReason = parsedMessage.choices[0].finish_reason;
 
-          tempResponse += assistantMessage; // 응답을 누적하여 저장
+          tempResponse += assistantMessage;
 
           if (finishReason === "stop") {
-            // 최종 응답을 배열로 저장
+            // 응답을 문단 기준으로 배열로 저장 (문단 단위로 div 요소에 들어감)
             const paragraphs = tempResponse.split("\\n\\n");
             setMessages((prevMessages) => [
               ...prevMessages,
@@ -87,10 +89,11 @@ const Chat: React.FC = () => {
                 role: "assistant",
               },
             ]);
-            setCurrentResponse([]); // 실시간 응답 초기화
+            setCurrentResponse([]);
             isConnected = false;
           } else {
-            setCurrentResponse(tempResponse.split("\\n\\n")); // 실시간 응답을 배열로 저장
+            // 응답을 문단 기준으로 배열로 저장 (문단 단위로 div 요소에 들어감)
+            setCurrentResponse(tempResponse.split("\\n\\n"));
           }
         });
       }
@@ -106,8 +109,8 @@ const Chat: React.FC = () => {
         ...prev,
         { id: messages.length + 1, text: [`You: ${input}`], role: "user" },
       ]);
-      sendMessage(); // 메시지 전송 함수 호출
-      setInput(""); // 입력 필드 초기화
+      sendMessage();
+      setInput("");
     }
   };
 
@@ -127,6 +130,7 @@ const Chat: React.FC = () => {
             }`}
           >
             {msg.text.map((paragraph, index) => (
+              // 문단 단위로 렌더링
               <div key={`${i}-${index}`} className="chat-paragraph">
                 {paragraph.trim()}
               </div>
@@ -136,6 +140,7 @@ const Chat: React.FC = () => {
         {currentResponse.length > 0 && (
           <div className="chat-assistant">
             {currentResponse.map((paragraph, index) => (
+              // 문단 단위로 렌더링
               <div key={`c-${index}`} className="chat-paragraph">
                 {paragraph.trim()}
               </div>
